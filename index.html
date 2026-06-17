@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Accountly Financial Suite</title>
+    <script type="module" crossorigin src="/assets/index-rDF2cZmj.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Dg3E0xvI.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand">
+          <div class="brand-mark">A</div>
+          <div>
+            <strong>Accountly</strong>
+            <span>Financial Suite</span>
+          </div>
+        </div>
+        <nav class="nav-list" id="navList"></nav>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <h1 id="pageTitle">Dashboard</h1>
+            <p id="pageSubtitle">Financial operations, compliance, and reporting in one workspace.</p>
+          </div>
+          <div class="top-actions">
+            <button class="icon-button" id="exportBtn" type="button" title="Export data">Export</button>
+            <button class="primary-button" id="newInvoiceBtn" type="button">New invoice</button>
+            <button class="secondary-button" id="newExpenseBtn" type="button">New expense</button>
+          </div>
+        </header>
+
+        <section class="content" id="content"></section>
+      </main>
+    </div>
+
+    <div id="modal"></div>
+  </body>
+</html>

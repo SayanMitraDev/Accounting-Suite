@@ -1,0 +1,7 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useState } from 'react';
+function App() {
+    const [count, setCount] = useState(0);
+    return (_jsx("div", { className: "min-h-screen bg-slate-50 text-slate-900", children: _jsxs("div", { className: "mx-auto max-w-5xl p-6", children: [_jsxs("header", { className: "mb-8", children: [_jsx("h1", { className: "text-3xl font-semibold text-slate-900", children: "Accounting App" }), _jsx("p", { className: "mt-2 text-slate-600", children: "Welcome to your accounting dashboard. Live preview is now working." })] }), _jsxs("section", { className: "grid gap-4 md:grid-cols-2", children: [_jsxs("div", { className: "rounded-3xl border border-slate-200 bg-white p-6 shadow-sm", children: [_jsx("h2", { className: "text-xl font-semibold text-slate-900", children: "Getting Started" }), _jsx("p", { className: "mt-3 text-slate-600", children: "This is your React app shell. Build dashboard, invoices, expenses, and AI assistant here." })] }), _jsxs("div", { className: "rounded-3xl border border-slate-200 bg-white p-6 shadow-sm", children: [_jsx("h2", { className: "text-xl font-semibold text-slate-900", children: "Status" }), _jsx("p", { className: "mt-3 text-slate-600", children: "Live preview should now render the frontend correctly." }), _jsxs("button", { className: "mt-5 rounded-full bg-brand-600 px-4 py-2 text-white shadow hover:bg-brand-700", onClick: () => setCount((c) => c + 1), children: ["Clicked ", count, " times"] })] })] })] }) }));
+}
+export default App;
