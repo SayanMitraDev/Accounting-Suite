@@ -1,0 +1,275 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String      @id @default(cuid())
+  email          String      @unique
+  password       String
+  name           String
+  role           UserRole    @default(VIEWER)
+  companies      CompanyUser[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Company {
+  id               String        @id @default(cuid())
+  name             String
+  gstNumber        String?
+  fiscalYearStart  DateTime
+  fiscalYearEnd    DateTime
+  logoUrl          String?
+  users            CompanyUser[]
+  clients          Client[]
+  vendors          Vendor[]
+  products         Product[]
+  invoices         Invoice[]
+  expenses         Expense[]
+  accounts         Account[]
+  journalEntries   JournalEntry[]
+  bankTransactions BankTransaction[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model CompanyUser {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  company   Company  @relation(fields: [companyId], references: [id])
+  companyId String
+  role      UserRole @default(ACCOUNTANT)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, companyId])
+}
+
+enum UserRole {
+  ADMIN
+  ACCOUNTANT
+  VIEWER
+}
+
+model Client {
+  id             String      @id @default(cuid())
+  company        Company     @relation(fields: [companyId], references: [id])
+  companyId      String
+  name           String
+  email          String?
+  phone          String?
+  gstNumber      String?
+  address        String?
+  state          String?
+  paymentTerms   String?
+  notes          String?
+  outstandingDue Float       @default(0)
+  invoices       Invoice[]
+  transactions   Transaction[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Vendor {
+  id            String      @id @default(cuid())
+  company       Company     @relation(fields: [companyId], references: [id])
+  companyId     String
+  name          String
+  email         String?
+  phone         String?
+  gstNumber     String?
+  address       String?
+  state         String?
+  category      String?
+  paymentMethod String?
+  notes         String?
+  outstanding   Float       @default(0)
+  expenses      Expense[]
+  transactions  Transaction[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  company     Company     @relation(fields: [companyId], references: [id])
+  companyId   String
+  name        String
+  description String?
+  unitPrice   Float
+  taxRate     Float      @default(18)
+  hsnCode     String?
+  unit        String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Invoice {
+  id             String           @id @default(cuid())
+  company        Company          @relation(fields: [companyId], references: [id])
+  companyId      String
+  client         Client           @relation(fields: [clientId], references: [id])
+  clientId       String
+  invoiceNumber  String           @unique
+  issueDate      DateTime
+  dueDate        DateTime
+  status         InvoiceStatus    @default(DRAFT)
+  currency       String           @default("INR")
+  subtotal       Float
+  discount       Float            @default(0)
+  taxTotal       Float
+  shipping       Float            @default(0)
+  total          Float
+  notes          String?
+  lineItems      InvoiceLineItem[]
+  recurring      RecurringInvoice?
+  emailSent      Boolean          @default(false)
+  paidAmount     Float            @default(0)
+  pdfUrl         String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model InvoiceLineItem {
+  id          String   @id @default(cuid())
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
+  invoiceId   String
+  product     Product? @relation(fields: [productId], references: [id])
+  productId   String?
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float
+  taxRate     Float    @default(18)
+  hsnCode     String?
+  amount      Float
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+}
+
+model Expense {
+  id             String        @id @default(cuid())
+  company        Company       @relation(fields: [companyId], references: [id])
+  companyId      String
+  vendor         Vendor?       @relation(fields: [vendorId], references: [id])
+  vendorId       String?
+  category       String
+  paymentMethod  String?
+  date           DateTime
+  reference      String?
+  amount         Float
+  taxAmount      Float           @default(0)
+  total          Float
+  receiptUrl     String?
+  status         ExpenseStatus @default(PENDING)
+  approvedBy     String?
+  approvedAt     DateTime?
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Transaction {
+  id             String       @id @default(cuid())
+  company        Company      @relation(fields: [companyId], references: [id])
+  companyId      String
+  client         Client?      @relation(fields: [clientId], references: [id])
+  clientId       String?
+  vendor         Vendor?      @relation(fields: [vendorId], references: [id])
+  vendorId       String?
+  account        Account      @relation(fields: [accountId], references: [id])
+  accountId      String
+  date           DateTime
+  description    String
+  amount         Float
+  transactionType TransactionType
+  reference      String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum TransactionType {
+  DEBIT
+  CREDIT
+}
+
+model Account {
+  id             String          @id @default(cuid())
+  company        Company         @relation(fields: [companyId], references: [id])
+  companyId      String
+  name           String
+  type           AccountType
+  code           String          @unique
+  balance        Float           @default(0)
+  journalEntries JournalEntry[]
+  transactions   Transaction[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  INCOME
+  EXPENSE
+}
+
+model JournalEntry {
+  id              String         @id @default(cuid())
+  company         Company        @relation(fields: [companyId], references: [id])
+  companyId       String
+  description     String
+  date            DateTime
+  debitAccount    Account        @relation("DebitEntries", fields: [debitAccountId], references: [id])
+  debitAccountId  String
+  creditAccount   Account        @relation("CreditEntries", fields: [creditAccountId], references: [id])
+  creditAccountId String
+  amount          Float
+  reference       String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model BankTransaction {
+  id              String      @id @default(cuid())
+  company         Company     @relation(fields: [companyId], references: [id])
+  companyId       String
+  bankName        String?
+  transactionDate DateTime
+  description     String
+  amount          Float
+  currency        String      @default("INR")
+  reference       String?
+  matchedEntryId  String?
+  matched         Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model TaxReport {
+  id            String    @id @default(cuid())
+  company       Company   @relation(fields: [companyId], references: [id])
+  companyId     String
+  periodStart   DateTime
+  periodEnd     DateTime
+  reportType    String
+  data          Json
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
